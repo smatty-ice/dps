@@ -31,6 +31,8 @@ yarn test       # jest suite
 yarn lint       # eslint
 ```
 
+A GitHub Actions workflow at the repo root ([`.github/workflows/deploy-pages.yml`](../.github/workflows/deploy-pages.yml)) builds this project with the base path overridden for GitHub Pages and deploys it to `https://<owner>.github.io/<repo>/osrs-dps/`.
+
 ## Updating game data
 
 Equipment, monster, and spell data live in `cdn/json` as a snapshot from the vendored commit. To refresh, either copy `cdn/json` from a newer upstream checkout or run upstream's scraper scripts in `scripts/` (see their [CONTRIBUTING.md](CONTRIBUTING.md)).

@@ -1,0 +1,60 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [claude/dazzling-dijkstra-i767uk, main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: osrs-dps-calc/yarn.lock
+      - run: corepack enable
+      - name: Install dependencies
+        working-directory: osrs-dps-calc
+        run: yarn install --immutable
+      - name: Build calculator
+        working-directory: osrs-dps-calc
+        env:
+          NEXT_PUBLIC_BASE_URL: https://${{ github.repository_owner }}.github.io
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}/osrs-dps
+          NEXT_PUBLIC_SHORTLINK_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/osrs-dps/
+        run: yarn build
+      - name: Assemble site
+        run: |
+          mkdir -p _site/osrs-dps
+          cp site/index.html _site/index.html
+          cp -r osrs-dps-calc/out/. _site/osrs-dps/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Enable Pages if needed
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
