@@ -40,6 +40,7 @@ jobs:
           mkdir -p _site/osrs-dps
           cp site/index.html _site/index.html
           cp -r osrs-dps-calc/out/. _site/osrs-dps/
+          cp osrs-dps-calc/out/404.html _site/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
